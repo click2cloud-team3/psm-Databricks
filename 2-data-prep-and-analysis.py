@@ -279,7 +279,7 @@ data_df.write.mode('overwrite').save(f"{delta_path}/silver/patient_data")
 storage_account = "<Azure-Storage-Account>"                       # Define Storage Account
 spark.conf.set(f"fs.azure.account.key.<Azure-Storage-Account>.dfs.core.windows.net","<Storage_account_access_key>")
 
-ADLS_PATH = f"abfss://psm@{storage_account}.dfs.core.windows.net/"
+ADLS_PATH = f"abfss://<sa_container>@{storage_account}.dfs.core.windows.net/"
 SILVER_PATH = ADLS_PATH + "silver/"
 
 # Enable auto compaction and optimized writes in Delta
