@@ -267,3 +267,32 @@ data_df.filter(f"is_{target_params['target_event_name']}==1")\
 # COMMAND ----------
 
 data_df.write.mode('overwrite').save(f"{delta_path}/silver/patient_data")
+
+
+# MAGIC %md
+# MAGIC ## 5. Write final Dataset to Azure Data Lake Gen2
+
+# MAGIC We wrighte the resulting dataset into ADLS Gen 2  to access the dataset at any instant outside the cluster. 
+
+# COMMAND ----------
+
+storage_account = "<Azure-Storage-Account>"                       # Define Storage Account
+spark.conf.set(f"fs.azure.account.key.<Azure-Storage-Account>.dfs.core.windows.net","<Storage_account_access_key>")
+
+ADLS_PATH = f"abfss://psm@{storage_account}.dfs.core.windows.net/"
+SILVER_PATH = ADLS_PATH + "silver/"
+
+# Enable auto compaction and optimized writes in Delta
+spark.conf.set("spark.databricks.delta.optimizeWrite.enabled","true")
+spark.conf.set("spark.databricks.delta.autoCompact.enabled","true")
+
+
+write_patient_data_to_adls = (
+    data_df.write
+     .mode("overwrite")
+     .option("header", "true")
+     .format("com.databricks.spark.csv")
+     .save(SILVER_PATH + "patient_data.csv")                         # Store the data into an ADLS Path
+)
+
+# COMMAND ----------
